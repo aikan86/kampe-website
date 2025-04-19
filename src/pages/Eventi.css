@@ -1,0 +1,223 @@
+/* src/pages/Eventi.css */
+.eventi-page {
+  position: relative;
+  padding-top: 0;
+  margin-bottom: 3rem;
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem 0;
+  position: relative;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Container per la mappa a piena larghezza */
+.mappa-fullwidth {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 500px;
+  z-index: 1;
+}
+
+/* Aumentare lo z-index per controllare la sovrapposizione */
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+/* Layout eventi principale con card in rilievo */
+.eventi-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Sezione eventi in evidenza */
+.eventi-in-evidenza {
+  margin-bottom: 3rem;
+}
+.eventi-in-evidenza h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+/* Griglia per eventi in evidenza */
+.eventi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+/* Sezione slider per gli altri eventi */
+.eventi-slider {
+  position: relative;
+  margin-top: 4rem;
+  padding: 2rem 0;
+  background-color: #f7f7f7;
+  border-radius: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.eventi-slider h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.slider-container {
+  position: relative;
+  overflow: hidden;
+  padding: 0 3rem;
+}
+
+.slider-wrapper {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.slider-card {
+  flex: 0 0 280px;
+  margin: 0 1rem;
+}
+
+.slider-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+.slider-button {
+  background: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  margin: 0 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.slider-button:hover {
+  background-color: #1a252f;
+}
+/* Card stile migliorato con ombreggiatura e rilievo */
+.event-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s;
+}
+
+.event-card-highlight {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Nuovi stili per le card eventi */
+.evento-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.evento-card:hover,
+.evento-hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.evento-selected {
+  border: 3px solid #2c3e50;
+  box-shadow: 0 5px 20px rgba(44, 62, 80, 0.3);
+  transform: translateY(-5px);
+}
+
+.evento-highlighted {
+  animation: pulse 2s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(44, 62, 80, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(44, 62, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(44, 62, 80, 0); }
+}
+.evento-immagine {
+  height: 180px;
+  overflow: hidden;
+}
+
+.evento-immagine img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.evento-card:hover .evento-immagine img {
+  transform: scale(1.05);
+}
+
+.evento-info {
+  padding: 15px;
+}
+
+.evento-info h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.evento-luogo, .evento-data {
+  color: #7f8c8d;
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.evento-descrizione {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #34495e;
+  margin-top: 10px;
+}
+
+/* Stili per la mappa container */
+.mappa-container {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 20px;
+}
+
+/* Stili per eventi recenti e altri eventi */
+.eventi-recenti, .altri-eventi {
+  margin-bottom: 3rem;
+}
+
+.eventi-recenti h2, .altri-eventi h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  text-align: center;
+}
