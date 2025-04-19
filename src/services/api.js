@@ -13,20 +13,20 @@ export const fetchEventi = async () => {
     
     console.log('Risposta API completa:', response.data);
     
-    // In Strapi v4/v5, i dati sono strutturati diversamente
     if (response.data && response.data.data) {
       // Estrai e mappa i dati dalla struttura di risposta di Strapi
       return response.data.data.map(item => {
-        // Log completo dell'item per debug
-        console.log('Item da processare:', item);
+        // Log dell'item per debug
+        console.log('Processing item:', item);
         
-        // Non accediamo più a item.attributes, usiamo direttamente item
-        // poiché i dati sembrano essere già al livello principale
+        // Converti la data in un oggetto Date se è una stringa
+        const data = item.Data ? new Date(item.Data) : null;
+        
         return {
           id: item.id,
           Titolo: item.Titolo || '',
           Slug: item.Slug || '',
-          Data: item.Data || null,
+          Data: data,
           Descrizione: item.Descrizione || '',
           Descrizione_Breve: item.Descrizione_Breve || '',
           Luogo: item.Luogo || '',
@@ -34,12 +34,7 @@ export const fetchEventi = async () => {
           Evidenza: item.Evidenza || false,
           prezzo: item.prezzo || 0,
           Link: item.Link || '',
-          Immagine: item.Immagine ? 
-            [{
-              url: item.Immagine,
-              fullUrl: item.Immagine.startsWith('/') ? 
-                `${API_URL}${item.Immagine}` : item.Immagine
-            }] : []
+          Immagine: [] // Per ora lasciamo vuoto, poi gestiremo le immagini
         };
       });
     }
