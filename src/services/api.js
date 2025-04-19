@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // URL del backend Strapi - NOTA: rimuovere lo spazio extra alla fine dell'URL
-const API_URL = (process.env.REACT_APP_API_URL || 'https://kampe-strapi.onrender.com').trim();
+const API_URL = (process.env.REACT_APP_API_URL || 'https://strapi-kampe.onrender.com').trim();
 
 export const fetchEventi = async () => {
   try {
