@@ -1,14 +1,16 @@
 // src/services/api.js
 import axios from 'axios';
 
-// URL del backend Strapi
-const API_URL = process.env.REACT_APP_API_URL || 'https://kampe-strapi.onrender.com';
+// URL del backend Strapi - NOTA: rimuovere lo spazio extra alla fine dell'URL
+const API_URL = (process.env.REACT_APP_API_URL || 'https://kampe-strapi.onrender.com').trim();
 
 export const fetchEventi = async () => {
   try {
-    console.log('Chiamando API:', `${API_URL}/api/eventos?populate=*`);
+    // Costruisci correttamente l'URL - assicurati che non ci siano spazi
+    const apiUrl = `${API_URL}/api/eventos?populate=*`;
+    console.log('Chiamando API:', apiUrl);
     
-    const response = await axios.get(`${API_URL}/api/eventos?populate=*`);
+    const response = await axios.get(apiUrl);
     
     console.log('Risposta API completa:', response.data);
     
