@@ -1,12 +1,11 @@
 // src/services/api.js
 import axios from 'axios';
 
-// URL del backend Strapi - NOTA: rimuovere lo spazio extra alla fine dell'URL
+// URL del backend Strapi
 const API_URL = (process.env.REACT_APP_API_URL || 'https://strapi-kampe.onrender.com').trim();
 
 export const fetchEventi = async () => {
   try {
-    // Costruisci correttamente l'URL - assicurati che non ci siano spazi
     const apiUrl = `${API_URL}/api/eventos?populate=*`;
     console.log('Chiamando API:', apiUrl);
     
@@ -18,25 +17,29 @@ export const fetchEventi = async () => {
     if (response.data && response.data.data) {
       // Estrai e mappa i dati dalla struttura di risposta di Strapi
       return response.data.data.map(item => {
-        const evento = item.attributes;
+        // Log completo dell'item per debug
+        console.log('Item da processare:', item);
+        
+        // Non accediamo più a item.attributes, usiamo direttamente item
+        // poiché i dati sembrano essere già al livello principale
         return {
           id: item.id,
-          Titolo: evento.Titolo,
-          Slug: evento.Slug,
-          Data: evento.Data,
-          Descrizione: evento.Descrizione,
-          Descrizione_Breve: evento.Descrizione_Breve,
-          Luogo: evento.Luogo,
-          Categoria: evento.Categoria,
-          Evidenza: evento.Evidenza,
-          prezzo: evento.prezzo,
-          Link: evento.Link,
-          Immagine: evento.Immagine?.data ? 
-            evento.Immagine.data.map(img => ({
-              url: img.attributes.url,
-              fullUrl: img.attributes.url.startsWith('/') ? 
-                `${API_URL}${img.attributes.url}` : img.attributes.url
-            })) : []
+          Titolo: item.Titolo || '',
+          Slug: item.Slug || '',
+          Data: item.Data || null,
+          Descrizione: item.Descrizione || '',
+          Descrizione_Breve: item.Descrizione_Breve || '',
+          Luogo: item.Luogo || '',
+          Categoria: item.Categoria || '',
+          Evidenza: item.Evidenza || false,
+          prezzo: item.prezzo || 0,
+          Link: item.Link || '',
+          Immagine: item.Immagine ? 
+            [{
+              url: item.Immagine,
+              fullUrl: item.Immagine.startsWith('/') ? 
+                `${API_URL}${item.Immagine}` : item.Immagine
+            }] : []
         };
       });
     }
