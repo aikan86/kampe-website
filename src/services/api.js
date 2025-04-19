@@ -1,12 +1,16 @@
 // src/services/api.js
 import axios from 'axios';
 
-// Usa l'API proxy locale anziché chiamare direttamente Strapi
+// URL del backend Strapi
+const API_URL = process.env.REACT_APP_API_URL || 'https://kampe-strapi.onrender.com';
+
 export const fetchEventi = async () => {
   try {
-    const response = await axios.get('/api/custom-eventos?populate=*');
+    console.log('Chiamando API:', `${API_URL}/api/eventos?populate=*`);
     
-    console.log('Risposta API:', response.data);
+    const response = await axios.get(`${API_URL}/api/eventos?populate=*`);
+    
+    console.log('Risposta API completa:', response.data);
     
     // In Strapi v4/v5, i dati sono strutturati diversamente
     if (response.data && response.data.data) {
@@ -29,7 +33,7 @@ export const fetchEventi = async () => {
             evento.Immagine.data.map(img => ({
               url: img.attributes.url,
               fullUrl: img.attributes.url.startsWith('/') ? 
-                `https://strapi-kampe.onrender.com${img.attributes.url}` : img.attributes.url
+                `${API_URL}${img.attributes.url}` : img.attributes.url
             })) : []
         };
       });
