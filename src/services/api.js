@@ -22,6 +22,7 @@ export const fetchEventi = async () => {
         const data = item.Data ? new Date(item.Data) : null;
         
         // Gestisci le immagini in base alla struttura dell'API
+        console.log('Struttura dell\'immagine:', JSON.stringify(item.Immagine, null, 2));
         let immagini = [];
         if (item.Immagine && item.Immagine.data) {
           // Se Immagine ha una struttura con data
