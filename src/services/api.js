@@ -24,8 +24,27 @@ export const fetchEventi = async () => {
         // Gestisci le immagini in base alla struttura dell'API
         console.log('Struttura dell\'immagine:', JSON.stringify(item.Immagine, null, 2));
         let immagini = [];
-        if (item.Immagine && item.Immagine.data) {
-          // Se Immagine ha una struttura con data
+        
+        // AGGIUNGI QUESTA NUOVA CONDIZIONE ALL'INIZIO:
+        if (item.Immagine && Array.isArray(item.Immagine) && item.Immagine.length > 0) {
+          // Per la struttura specifica che abbiamo visto nel log
+          immagini = item.Immagine.map(img => ({
+            id: img.id,
+            name: img.name,
+            url: img.url,
+            fullUrl: img.url.startsWith('/') ? 
+              `${API_URL}${img.url}` : img.url,
+            thumbnail: img.formats?.thumbnail?.url ? 
+              `${API_URL}${img.formats.thumbnail.url}` : null,
+            small: img.formats?.small?.url ? 
+              `${API_URL}${img.formats.small.url}` : null,
+            medium: img.formats?.medium?.url ? 
+              `${API_URL}${img.formats.medium.url}` : null,
+            alt: img.alternativeText || item.Titolo
+          }));
+        }
+        else if (item.Immagine && item.Immagine.data) {
+          // Resta del codice esistente per altre strutture
           const imgData = item.Immagine.data;
           if (Array.isArray(imgData)) {
             // Se è un array di immagini
@@ -46,7 +65,7 @@ export const fetchEventi = async () => {
               fullUrl: imgData.attributes.url.startsWith('/') ? 
                 `${API_URL}${imgData.attributes.url}` : imgData.attributes.url,
               thumbnail: imgData.attributes.formats?.thumbnail?.url ? 
-                `${API_URL}${imgData.attributes.formats.thumbnail.url}` : null,
+                `${API_URL}${img.attributes.formats.thumbnail.url}` : null,
               alt: imgData.attributes.alternativeText || item.Titolo
             }];
           }
@@ -61,6 +80,10 @@ export const fetchEventi = async () => {
             alt: item.Titolo
           }];
         }
+        
+        // Log delle immagini elaborate per debug
+        console.log('Immagini elaborate:', immagini);
+        
         return {
           id: item.id,
           Titolo: item.Titolo || '',
