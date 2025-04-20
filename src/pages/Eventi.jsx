@@ -117,7 +117,8 @@ const Eventi = () => {
           if (evento.Immagine && evento.Immagine.length > 0) {
             const immagine = evento.Immagine[0];
             if (immagine && immagine.url) {
-              formattato.immagine = `http://localhost:1337${immagine.url}`;
+              // Usa fullUrl invece di costruire un nuovo URL con localhost:1337
+              formattato.immagine = immagine.fullUrl; 
             }
           }
           
