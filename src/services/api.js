@@ -65,21 +65,12 @@ export const fetchEventi = async () => {
               fullUrl: imgData.attributes.url.startsWith('/') ? 
                 `${API_URL}${imgData.attributes.url}` : imgData.attributes.url,
               thumbnail: imgData.attributes.formats?.thumbnail?.url ? 
-                `${API_URL}${img.attributes.formats.thumbnail.url}` : null,
+                `${API_URL}${imgData.attributes.formats.thumbnail.url}` : null,
               alt: imgData.attributes.alternativeText || item.Titolo
             }];
           }
-        } else if (item.Immagine && typeof item.Immagine === 'string') {
-          // Se Immagine è direttamente una stringa URL
-          immagini = [{
-            id: 0,
-            url: item.Immagine,
-            fullUrl: item.Immagine.startsWith('/') ? 
-              `${API_URL}${item.Immagine}` : item.Immagine,
-            thumbnail: null,
-            alt: item.Titolo
-          }];
         }
+
         
         // Log delle immagini elaborate per debug
         console.log('Immagini elaborate:', immagini);
