@@ -5,6 +5,7 @@ import './Eventi.css';
 import { fetchEventi } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import axios from 'axios'; // Aggiungi questa importazione per le richieste geocoding
 
 // Risolve il problema delle icone di Leaflet in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -51,6 +52,65 @@ const Eventi = () => {
   const mapRef = useRef();
   const [sliderIndex, setSliderIndex] = useState(0);
   const [eventoSelezionato, setEventoSelezionato] = useState(null);
+  
+  // Cache per le coordinate già ottenute, per evitare richieste duplicate
+  const coordsCache = useRef({});
+  // Funzione per ottenere coordinate precise da OpenStreetMap
+  const getCoordinatesForLocation = async (locationName) => {
+    // Se le coordinate sono già in cache, usale
+    if (coordsCache.current[locationName]) {
+      return coordsCache.current[locationName];
+    }
+    
+    // Coordinate di fallback per località comuni
+    const baseCoords = {
+      "Chiavari": [44.3173, 9.3240],      // Chiavari
+      "Rapallo": [44.3506, 9.2311],       // Rapallo
+      "Genova": [44.4056, 8.9463],        // Genova
+      "Sestri Levante": [44.2707, 9.3940], // Sestri Levante
+      "Lavagna": [44.3067, 9.3491],       // Lavagna
+      "Santa Margherita Ligure": [44.3352, 9.2168], // Santa Margherita
+      "Zoagli": [44.3347, 9.2701],        // Zoagli
+      "Recco": [44.3629, 9.1437],         // Recco
+      "Camogli": [44.3478, 9.1507],       // Camogli
+      "default": [44.3055, 9.3230]        // Default (area Tigullio)
+    };
+    
+    try {
+      // Se abbiamo coordinate predefinite, usiamo quelle con una piccola variazione casuale
+      if (baseCoords[locationName]) {
+        const coords = [
+          baseCoords[locationName][0] + (Math.random() - 0.5) * 0.002, // Variazione minima per rendere i marker distinguibili
+          baseCoords[locationName][1] + (Math.random() - 0.5) * 0.002
+        ];
+        // Salva in cache
+        coordsCache.current[locationName] = coords;
+        return coords;
+      }
+      
+      // Altrimenti, cerca le coordinate utilizzando Nominatim (OpenStreetMap)
+      console.log(`Ricerca coordinate per località: ${locationName}`);
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}, Liguria, Italia`,
+        { headers: { 'User-Agent': 'KampeApp/1.0' } } // Importante per rispettare i termini di servizio di Nominatim
+      );
+      
+      if (response.data && response.data.length > 0) {
+        const location = response.data[0];
+        const coords = [parseFloat(location.lat), parseFloat(location.lon)];
+        // Salva in cache
+        coordsCache.current[locationName] = coords;
+        return coords;
+      }
+      
+      // Fallback alle coordinate di default se la località non viene trovata
+      console.log(`Località non trovata, usando coordinate default per: ${locationName}`);
+      return baseCoords["default"];
+    } catch (error) {
+      console.error('Errore nel recupero delle coordinate per', locationName, error);
+      return baseCoords[locationName] || baseCoords["default"];
+    }
+  };
   useEffect(() => {
     const caricaEventi = async () => {
       try {
@@ -72,8 +132,8 @@ const Eventi = () => {
           return;
         }
         
-        // Mappa i dati con controlli aggiuntivi
-        const eventiFormattati = eventiData.map(evento => {
+        // Elabora gli eventi in modo asincrono per ottenere le coordinate precise
+        const eventiFormattatiPromises = eventiData.map(async evento => {
           if (!evento) {
             console.warn('Evento non valido:', evento);
             return null;
@@ -81,20 +141,9 @@ const Eventi = () => {
           
           console.log('Formattazione evento:', evento.id);
           
-          // Per semplicità, simuliamo coordinate geografiche
-          const getRandomCoords = (baseLocation, range) => {
-            const lat = baseLocation[0] + (Math.random() - 0.5) * range;
-            const lng = baseLocation[1] + (Math.random() - 0.5) * range;
-            return [lat, lng];
-          };
-
-          // Assegna coordinate basate sulla location
-          const baseCoords = {
-            "Chiavari": [44.3173, 9.3240],  // Chiavari
-            "Rapallo": [44.3506, 9.2311],   // Rapallo
-            "Genova": [44.4056, 8.9463],    // Genova
-            "default": [44.3055, 9.3230]    // Default
-          };
+          // Ottieni coordinate precise per la località
+          const coordinates = await getCoordinatesForLocation(evento.Luogo || 'default');
+          
           // Adatta ai nomi dei campi con prima lettera maiuscola
           const formattato = {
             id: evento.id,
@@ -108,9 +157,7 @@ const Eventi = () => {
             in_evidenza: evento.Evidenza,
             prezzo: evento.prezzo,
             link: evento.Link,
-            coordinates: baseCoords[evento.Luogo] 
-                        ? getRandomCoords(baseCoords[evento.Luogo], 0.01) 
-                        : getRandomCoords(baseCoords["default"], 0.05)
+            coordinates: coordinates // Usa le coordinate precise
           };
           
           // Gestione sicura dell'immagine
@@ -123,7 +170,10 @@ const Eventi = () => {
           }
           
           return formattato;
-        }).filter(Boolean); // Rimuove eventuali elementi null
+        });
+        
+        // Attendi che tutte le promesse siano risolte
+        const eventiFormattati = (await Promise.all(eventiFormattatiPromises)).filter(Boolean);
         
         // Ordina gli eventi per data (più recenti prima)
         const eventiOrdinati = eventiFormattati.sort((a, b) => {
@@ -158,7 +208,7 @@ const Eventi = () => {
     }
   };
 
-    // Gestisce il click su un marker della mappa
+  // Gestisce il click su un marker della mappa
   const handleMarkerClick = (evento) => {
     // Imposta l'evento selezionato
     setEventoSelezionato(evento.id);
@@ -169,6 +219,7 @@ const Eventi = () => {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
+  
   // Gestisce il click su una card evento
   const handleCardClick = (evento) => {
     // Toggle selezione: se già selezionato lo deseleziona, altrimenti lo seleziona
@@ -180,7 +231,6 @@ const Eventi = () => {
     }
   };
 
-
   // Controlli per lo slider
   const nextSlide = () => {
     const maxIndex = Math.max(0, eventiAltri.length - 3);
@@ -191,6 +241,7 @@ const Eventi = () => {
     const maxIndex = Math.max(0, eventiAltri.length - 3);
     setSliderIndex(prev => prev <= 0 ? maxIndex : prev - 1);
   };
+  
   return (
     <div className="eventi-container">
       {loading && <div className="loading">Caricamento eventi in corso...</div>}
@@ -317,6 +368,7 @@ const Eventi = () => {
                 ))}
               </div>
             </div>
+                      </div>
           )}
           
           <div className="slider-controls">
@@ -329,7 +381,6 @@ const Eventi = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
